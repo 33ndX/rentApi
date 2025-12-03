@@ -6,7 +6,7 @@ from typing import Any, Iterable
 
 from pydantic import UUID5
 
-from rentApi.core.domain.review import ReviewIn
+from rentapi.src.core.domain.review import ReviewIn
 
 
 class IReviewRepository(ABC):

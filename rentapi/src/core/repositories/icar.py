@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
 
-from rentApi.core.domain.car import CarIn
+from rentapi.src.core.domain.car import CarIn
 
 
 class ICarRepository(ABC):

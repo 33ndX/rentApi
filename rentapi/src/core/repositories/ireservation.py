@@ -5,7 +5,7 @@ from typing import Any, Iterable
 
 from pydantic import UUID1
 
-from rentApi.core.domain.reservation import ReservationIn
+from rentapi.src.core.domain.reservation import ReservationIn
 
 
 class IReservationRepository(ABC):

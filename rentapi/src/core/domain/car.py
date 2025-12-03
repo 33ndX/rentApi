@@ -9,7 +9,7 @@ class CarIn(BaseModel):
     """Model representing car's attributes."""
     brand: str
     model: str
-    year: int
+    year: str
     price_per_day: float
     registration_number: str
     mileage: Optional[int]
