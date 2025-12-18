@@ -10,7 +10,7 @@ class ICarRepository(ABC):
     """An abstract class representing protocol of car repository."""
 
     @abstractmethod
-    async def get_cars(self) -> Iterable[Any]:
+    async def get_all_cars(self) -> Iterable[Any]:
         """The abstract getting all cars from the data storage.
 
         Returns:
@@ -29,14 +29,25 @@ class ICarRepository(ABC):
         """
 
     @abstractmethod
-    async def get_car_by_model(self, name: str) -> Iterable[Any] | None:
-        """The abstract getting car provided id.
+    def get_car_by_brand(self, name: str) -> Iterable[Any]:
+        """The abstract getting car provided by brand.
+
+        Args:
+            name (str): The name of the car brand.
+
+        Returns:
+            Iterable[Any]: The car details.
+        """
+
+    @abstractmethod
+    async def get_car_by_model(self, name: str) -> Iterable[Any]:
+        """The abstract getting car provided by model.
 
         Args:
             name (str): The name of the car model.
 
         Returns:
-            Iterable[Any] | None: The car details associated with the car model.
+            Iterable[Any]: The car details associated with the car model.
         """
 
     @abstractmethod
@@ -56,7 +67,7 @@ class ICarRepository(ABC):
             car_id: int,
             data: CarIn
     ) -> Any | None:
-        """The abstract updating car data in the data storage..
+        """The abstract updating car data in the data storage.
 
         Args:
             car_id (int): The id of the car

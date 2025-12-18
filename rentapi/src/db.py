@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, DatabaseError
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.mutable import MutableList
-from asyncpg.exceptions import (    # type: ignore
+from asyncpg.exceptions import (  # type: ignore
     CannotConnectNowError,
     ConnectionDoesNotExistError,
 )
@@ -22,7 +22,7 @@ car_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("brand", sqlalchemy.String),
-    sqlalchemy.Column("model",  sqlalchemy.String),
+    sqlalchemy.Column("model", sqlalchemy.String),
     sqlalchemy.Column("year", sqlalchemy.String),
     sqlalchemy.Column("registration_number", sqlalchemy.String),
     sqlalchemy.Column("mileage", sqlalchemy.Integer, nullable=True),
@@ -31,3 +31,100 @@ car_table = sqlalchemy.Table(
     sqlalchemy.Column("seats", sqlalchemy.String, nullable=True),
     sqlalchemy.Column("description", sqlalchemy.String, nullable=True),
 )
+
+reservation_table = sqlalchemy.Table(
+    "reservations",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        "user_id",
+        sqlalchemy.ForeignKey("user.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "car_id",
+        sqlalchemy.ForeignKey("cars.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "payment_id",
+        sqlalchemy.ForeignKey("payment.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column("reservation_start", sqlalchemy.DateTime),
+    sqlalchemy.Column("reservation_end", sqlalchemy.DateTime),
+    sqlalchemy.Column("reservation_status", sqlalchemy.Enum),  # Do poprawy w domu!!!
+)
+
+review_table = sqlalchemy.Table(
+    "reviews",
+    metadata,
+    sqlalchemy.Column(
+        "user_id",
+        sqlalchemy.ForeignKey("user.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "car_id",
+        sqlalchemy.ForeignKey("cars.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column("body", sqlalchemy.String),
+)
+
+user_table = sqlalchemy.Table(
+    "users",
+    metadata,
+    sqlalchemy.Column(
+        "id",
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=sqlalchemy.text("gen_random_uuid()"),
+    ),
+    sqlalchemy.Column("email", sqlalchemy.String, unique=True),
+    sqlalchemy.Column("password", sqlalchemy.String),  # Jakies UserRole ten tego !!! Nie wiem
+)
+
+"""Engine of the database"""
+
+db_uri = (
+    f"postgresql+asyncpg://{config.DB_USER}:{config.DB_PASSWORD}"
+    f"@{config.DB_HOST}/{config.DB_NAME}"
+)
+
+engine = create_async_engine(
+    db_uri,
+    echo=True,
+    future=True,
+    pool_pre_ping=True,
+)
+
+database = databases.Database(
+    db_uri,
+    force_rollback=True,
+)
+
+
+async def init_db(retries: int = 5, delay: int = 5) -> None:
+    """Function initializing the DB.
+
+    Args:
+        retries (int, optional): Number of retries of connect to DB.
+            Defaults to 5.
+        delay (int, optional): Delay of connect do DB. Defaults to 2.
+    """
+    for attempt in range(retries):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(metadata.create_all)
+            return
+        except (
+                OperationalError,
+                DatabaseError,
+                CannotConnectNowError,
+                ConnectionDoesNotExistError,
+        ) as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            await asyncio.sleep(delay)
+
+    raise ConnectionError("Could not connect to DB after several retries.")
