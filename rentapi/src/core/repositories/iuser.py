@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import UUID5
 
-from rentapi.src.core.domain.user import UserIn
+from src.core.domain.user import UserIn
 
 
 class IUserRepository(ABC):

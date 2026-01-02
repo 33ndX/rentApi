@@ -7,13 +7,12 @@ import sqlalchemy
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import OperationalError, DatabaseError
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.mutable import MutableList
 from asyncpg.exceptions import (  # type: ignore
     CannotConnectNowError,
     ConnectionDoesNotExistError,
 )
 
-from rentapi.src.config import config
+from src.config import config
 
 metadata = sqlalchemy.MetaData()
 
@@ -24,6 +23,7 @@ car_table = sqlalchemy.Table(
     sqlalchemy.Column("brand", sqlalchemy.String),
     sqlalchemy.Column("model", sqlalchemy.String),
     sqlalchemy.Column("year", sqlalchemy.String),
+    sqlalchemy.Column("price_per_day", sqlalchemy.Float),
     sqlalchemy.Column("registration_number", sqlalchemy.String),
     sqlalchemy.Column("mileage", sqlalchemy.Integer, nullable=True),
     sqlalchemy.Column("fuel_type", sqlalchemy.String, nullable=True),
@@ -31,47 +31,47 @@ car_table = sqlalchemy.Table(
     sqlalchemy.Column("seats", sqlalchemy.String, nullable=True),
     sqlalchemy.Column("description", sqlalchemy.String, nullable=True),
 )
-
-reservation_table = sqlalchemy.Table(
-    "reservations",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column(
-        "user_id",
-        sqlalchemy.ForeignKey("user.id"),
-        nullable=False,
-    ),
-    sqlalchemy.Column(
-        "car_id",
-        sqlalchemy.ForeignKey("cars.id"),
-        nullable=False,
-    ),
-    sqlalchemy.Column(
-        "payment_id",
-        sqlalchemy.ForeignKey("payment.id"),
-        nullable=False,
-    ),
-    sqlalchemy.Column("reservation_start", sqlalchemy.DateTime),
-    sqlalchemy.Column("reservation_end", sqlalchemy.DateTime),
-    sqlalchemy.Column("reservation_status", sqlalchemy.Enum),  # Do poprawy w domu!!!
-)
-
-review_table = sqlalchemy.Table(
-    "reviews",
-    metadata,
-    sqlalchemy.Column(
-        "user_id",
-        sqlalchemy.ForeignKey("user.id"),
-        nullable=False,
-    ),
-    sqlalchemy.Column(
-        "car_id",
-        sqlalchemy.ForeignKey("cars.id"),
-        nullable=False,
-    ),
-    sqlalchemy.Column("body", sqlalchemy.String),
-)
-
+#
+# reservation_table = sqlalchemy.Table(
+#     "reservations",
+#     metadata,
+#     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+#     sqlalchemy.Column(
+#         "user_id",
+#         sqlalchemy.ForeignKey("user.id"),
+#         nullable=False,
+#     ),
+#     sqlalchemy.Column(
+#         "car_id",
+#         sqlalchemy.ForeignKey("cars.id"),
+#         nullable=False,
+#     ),
+#     sqlalchemy.Column(
+#         "payment_id",
+#         sqlalchemy.ForeignKey("payment.id"),
+#         nullable=False,
+#     ),
+#     sqlalchemy.Column("reservation_start", sqlalchemy.DateTime),
+#     sqlalchemy.Column("reservation_end", sqlalchemy.DateTime),
+#     sqlalchemy.Column("reservation_status", sqlalchemy.Enum),  # Do poprawy w domu!!!
+# )
+#
+# review_table = sqlalchemy.Table(
+#     "reviews",
+#     metadata,
+#     sqlalchemy.Column(
+#         "user_id",
+#         sqlalchemy.ForeignKey("user.id"),
+#         nullable=False,
+#     ),
+#     sqlalchemy.Column(
+#         "car_id",
+#         sqlalchemy.ForeignKey("cars.id"),
+#         nullable=False,
+#     ),
+#     sqlalchemy.Column("body", sqlalchemy.String),
+# )
+#
 user_table = sqlalchemy.Table(
     "users",
     metadata,
@@ -82,7 +82,7 @@ user_table = sqlalchemy.Table(
         server_default=sqlalchemy.text("gen_random_uuid()"),
     ),
     sqlalchemy.Column("email", sqlalchemy.String, unique=True),
-    sqlalchemy.Column("password", sqlalchemy.String),  # Jakies UserRole ten tego !!! Nie wiem
+    sqlalchemy.Column("password", sqlalchemy.String),
 )
 
 """Engine of the database"""

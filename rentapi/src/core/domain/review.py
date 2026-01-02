@@ -5,7 +5,6 @@ from typing import Optional
 from datetime import datetime
 
 
-
 class ReviewIn(BaseModel):
     """Model representing review's attributes."""
     car_id: int
@@ -17,7 +16,7 @@ class ReviewIn(BaseModel):
     @classmethod
     def validate_rating(cls, rating: int) -> int:
         """Validate rating between 1 and 5"""
-        if rating not in range(1, 5):
+        if rating not in range(1, 6):
             raise ValueError("Rating must be between 1 and 5")
         return rating
 

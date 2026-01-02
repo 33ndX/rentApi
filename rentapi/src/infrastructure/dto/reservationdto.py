@@ -3,9 +3,9 @@
 from asyncpg import Record  # type: ignore
 from pydantic import ConfigDict
 from datetime import datetime
-from rentapi.src.core.domain.reservation import ReservationStatus
-from rentapi.src.infrastructure.dto.cardto import CarDTO
-from rentapi.src.infrastructure.dto.userdto import UserDTO
+from src.core.domain.reservation import ReservationStatus
+from src.infrastructure.dto.cardto import CarDTO
+from src.infrastructure.dto.userdto import UserDTO
 
 
 class ReservationDTO:

@@ -1,7 +1,7 @@
 """Modul containing reservation-related domain models."""
 
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, fields_validator, model_validator, UUID4
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator, UUID4
 from typing import Self, Optional
 from datetime import datetime
 
@@ -21,7 +21,7 @@ class ReservationIn(BaseModel):
     reservation_start: datetime
     reservation_end: datetime
 
-    @fields_validator("reservation_start", "reservation_end")
+    @field_validator("reservation_start", "reservation_end")
     @classmethod
     def validate_reservation_date(cls, date: datetime) -> datetime:
         if date < datetime.now():

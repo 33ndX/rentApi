@@ -4,10 +4,10 @@ from typing import Any, Iterable
 
 from asyncpg import Record  # type: ignore
 
-from rentapi.src.core.repositories.icar import ICarRepository
-from rentapi.src.core.domain.car import Car, CarIn
-from rentapi.src.db import car_table, database
-from rentapi.src.infrastructure.dto.cardto import CarDTO
+from src.core.repositories.icar import ICarRepository
+from src.core.domain.car import Car, CarIn
+from src.db import car_table, database
+from src.infrastructure.dto.cardto import CarDTO
 
 
 class CarRepository(ICarRepository):

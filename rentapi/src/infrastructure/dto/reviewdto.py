@@ -2,8 +2,8 @@
 
 from asyncpg import Record  # type: ignore
 from pydantic import BaseModel, ConfigDict
-from rentapi.src.infrastructure.dto.cardto import CarDTO
-from rentapi.src.infrastructure.dto.userdto import UserDTO
+from src.infrastructure.dto.cardto import CarDTO
+from src.infrastructure.dto.userdto import UserDTO
 
 
 class ReviewDTO(BaseModel):

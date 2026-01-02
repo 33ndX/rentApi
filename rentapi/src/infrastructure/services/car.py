@@ -2,10 +2,10 @@
 
 from typing import Iterable
 
-from rentapi.src.core.domain.car import Car, CarIn
-from rentapi.src.core.repositories.icar import ICarRepository
-from rentapi.src.infrastructure.dto.cardto import CarDTO
-from rentapi.src.infrastructure.services.icar import ICarService
+from src.core.domain.car import Car, CarIn
+from src.core.repositories.icar import ICarRepository
+from src.infrastructure.dto.cardto import CarDTO
+from src.infrastructure.services.icar import ICarService
 
 
 class CarService(ICarService):

@@ -15,7 +15,7 @@ class CarIn(BaseModel):
     mileage: Optional[int]
     fuel_type: Optional[str]
     gearbox: Optional[str]
-    seats: Optional[int]
+    seats: Optional[str]
     description: Optional[str]
 
 

@@ -5,7 +5,7 @@ from typing import Any, Iterable
 
 from pydantic import UUID1
 
-from rentapi.src.core.domain.reservation import ReservationIn
+from src.core.domain.reservation import ReservationIn
 
 
 class IReservationRepository(ABC):
@@ -20,20 +20,31 @@ class IReservationRepository(ABC):
         """
 
     @abstractmethod
-    async def get_by_id(self, reservation_id: int) -> Iterable[Any]:
-        """The abstract getting reservation provided id.
+    async def get_by_car(self, car_id: int) -> Iterable[Any]:
+        """The abstract getting reservation provided by car id.
 
         Args:
-            reservation_id (int): The id of the car.
+            car_id (int): The id of the car.
 
         Returns:
-            Any | None: The car details.
+            Any | None: The reservation details.
         """
 
     @abstractmethod
-    async def get_reservation_by_user(self,
-                                      user_id: UUID1
-                                      ) -> Iterable[Any]:
+    async def get_by_id(self, reservation_id: int) -> Any:
+        """The abstract getting reservation provided by id.
+
+        Args:
+            reservation_id (int): The id of the reservation.
+
+        Returns:
+            Any | None: The reservation details.
+        """
+
+    @abstractmethod
+    async def get_by_user(self,
+                          user_id: UUID1
+                          ) -> Iterable[Any]:
         """The abstract getting all provided user's reservation
             from the data storage.
 

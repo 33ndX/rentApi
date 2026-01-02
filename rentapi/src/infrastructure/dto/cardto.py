@@ -10,13 +10,13 @@ class CarDTO(BaseModel):
     id: int
     brand: str
     model: str
-    year: int
+    year: str
     price_per_day: float
     registration_number: str
     mileage: Optional[int] = None
     fuel_type: Optional[str] = None
     gearbox: Optional[str] = None
-    seats: Optional[int] = None
+    seats: Optional[str] = None
     description: Optional[str] = None
 
     model_config = ConfigDict(

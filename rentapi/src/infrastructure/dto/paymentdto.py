@@ -1,7 +1,7 @@
 """A module containing DTO models for payment"""
 from pydantic import BaseModel, ConfigDict, UUID4  # type: ignore
 
-from rentapi.src.core.domain.payment import PaymentStatus
+from src.core.domain.payment import PaymentStatus
 
 
 class PaymentDTO(BaseModel):

@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from rentapi.src.core.domain.car import Car, CarIn
-from rentapi.src.infrastructure.dto.cardto import CarDTO
+from src.core.domain.car import Car, CarIn
+from src.infrastructure.dto.cardto import CarDTO
 
 
 class ICarService(ABC):
