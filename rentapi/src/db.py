@@ -31,47 +31,85 @@ car_table = sqlalchemy.Table(
     sqlalchemy.Column("seats", sqlalchemy.String, nullable=True),
     sqlalchemy.Column("description", sqlalchemy.String, nullable=True),
 )
-#
-# reservation_table = sqlalchemy.Table(
-#     "reservations",
-#     metadata,
-#     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-#     sqlalchemy.Column(
-#         "user_id",
-#         sqlalchemy.ForeignKey("user.id"),
-#         nullable=False,
-#     ),
-#     sqlalchemy.Column(
-#         "car_id",
-#         sqlalchemy.ForeignKey("cars.id"),
-#         nullable=False,
-#     ),
-#     sqlalchemy.Column(
-#         "payment_id",
-#         sqlalchemy.ForeignKey("payment.id"),
-#         nullable=False,
-#     ),
-#     sqlalchemy.Column("reservation_start", sqlalchemy.DateTime),
-#     sqlalchemy.Column("reservation_end", sqlalchemy.DateTime),
-#     sqlalchemy.Column("reservation_status", sqlalchemy.Enum),  # Do poprawy w domu!!!
-# )
-#
-# review_table = sqlalchemy.Table(
-#     "reviews",
-#     metadata,
-#     sqlalchemy.Column(
-#         "user_id",
-#         sqlalchemy.ForeignKey("user.id"),
-#         nullable=False,
-#     ),
-#     sqlalchemy.Column(
-#         "car_id",
-#         sqlalchemy.ForeignKey("cars.id"),
-#         nullable=False,
-#     ),
-#     sqlalchemy.Column("body", sqlalchemy.String),
-# )
-#
+
+reservation_table = sqlalchemy.Table(
+    "reservations",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        "user_id",
+        sqlalchemy.ForeignKey("users.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "car_id",
+        sqlalchemy.ForeignKey("cars.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "payment_id",
+        sqlalchemy.ForeignKey("payments.id"),
+        nullable=True,
+    ),
+    sqlalchemy.Column("reservation_start", sqlalchemy.DateTime),
+    sqlalchemy.Column("reservation_end", sqlalchemy.DateTime),
+    sqlalchemy.Column("reservation_status", sqlalchemy.String, default="PENDING_PAYMENT"),
+    sqlalchemy.Column("total_price", sqlalchemy.Float),
+    sqlalchemy.Column(
+        "created_at",
+        sqlalchemy.DateTime,
+        server_default=sqlalchemy.text("NOW()"),
+    ),
+)
+
+payment_table = sqlalchemy.Table(
+    "payments",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        "reservation_id",
+        sqlalchemy.ForeignKey("reservations.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column("status", sqlalchemy.String, default="PENDING"),
+    sqlalchemy.Column("amount", sqlalchemy.Float),
+    sqlalchemy.Column(
+        "created_at",
+        sqlalchemy.DateTime,
+        server_default=sqlalchemy.text("NOW()"),
+    ),
+    sqlalchemy.Column(
+        "updated_at",
+        sqlalchemy.DateTime,
+        server_default=sqlalchemy.text("NOW()"),
+        onupdate=sqlalchemy.text("NOW()"),
+    ),
+)
+
+review_table = sqlalchemy.Table(
+    "reviews",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(
+        "user_id",
+        sqlalchemy.ForeignKey("users.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column(
+        "car_id",
+        sqlalchemy.ForeignKey("cars.id"),
+        nullable=False,
+    ),
+    sqlalchemy.Column("body", sqlalchemy.String),
+    sqlalchemy.Column("rating", sqlalchemy.Integer),
+    sqlalchemy.Column(
+        "created_at",
+        sqlalchemy.DateTime,
+        server_default=sqlalchemy.text("NOW()"),
+    ),
+
+)
+
 user_table = sqlalchemy.Table(
     "users",
     metadata,

@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, UUID1
 class UserIn(BaseModel):
     """An input user model."""
     email: str
-    user_password: str
+    password: str
 
 
 class User(UserIn):

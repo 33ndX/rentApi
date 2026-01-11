@@ -1,17 +1,19 @@
-"""A module containing DTO models for output cars."""
+"""A module containing DTO models for output reviews."""
 
+from datetime import datetime
+from typing import Optional
 from asyncpg import Record  # type: ignore
-from pydantic import BaseModel, ConfigDict
-from src.infrastructure.dto.cardto import CarDTO
-from src.infrastructure.dto.userdto import UserDTO
+from pydantic import BaseModel, ConfigDict, UUID4
 
 
 class ReviewDTO(BaseModel):
     """A model representing DTO for review data."""
-
-    user: UserDTO
-    car: CarDTO
+    id: int
+    user_id: UUID4
+    car_id: int
     body: str
+    rating: int
+    created_at: Optional[datetime] = None
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -29,11 +31,13 @@ class ReviewDTO(BaseModel):
         Returns:
             ReviewDTO: The final DTO instance.
         """
-
         record_dict = dict(record)
 
         return cls(
-            user=UserDTO(),
-            car=CarDTO(),
-            body=record_dict.get("body")
+            id=record_dict.get("id"),  # type: ignore
+            user_id=record_dict.get("user_id"),  # type: ignore
+            car_id=record_dict.get("car_id"),  # type: ignore
+            body=record_dict.get("body"),  # type: ignore
+            rating=record_dict.get("rating"),  # type: ignore
+            created_at=record_dict.get("created_at"),
         )

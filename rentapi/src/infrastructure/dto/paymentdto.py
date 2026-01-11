@@ -1,19 +1,38 @@
-"""A module containing DTO models for payment"""
-from pydantic import BaseModel, ConfigDict, UUID4  # type: ignore
+"""Module containing payment DTO."""
 
+from typing import Any
+from datetime import datetime
 from src.core.domain.payment import PaymentStatus
+from pydantic import BaseModel, ConfigDict
 
 
 class PaymentDTO(BaseModel):
-    """A model representing a DTO for payment data"""
+    """DTO for Payment model."""
     id: int
-    price: float
-    status: PaymentStatus
     reservation_id: int
-    user_id: UUID4
+    status: PaymentStatus
+    amount: float
+    created_at: datetime
+    updated_at: datetime
 
-    model_config = ConfigDict(
-        from_attributes=True,
-        extra="ignore",
-        arbitrary_types_allowed=True,
-    )
+    model_config = ConfigDict(from_attributes=True)
+
+    @classmethod
+    def from_record(cls, record: Any) -> "PaymentDTO":
+        """A method converting record to DTO.
+
+        Args:
+            record (Any): The record from the DB.
+
+        Returns:
+            PaymentDTO: The DTO object.
+        """
+
+        return cls(
+            id=record["id"],
+            reservation_id=record["reservation_id"],
+            status=record["status"] or PaymentStatus.PENDING,
+            amount=record["amount"],
+            created_at=record["created_at"],
+            updated_at=record["updated_at"],
+        )

@@ -1,19 +1,35 @@
-"""Module containing review service abstractions."""
+"""Module containing review service implementation."""
 
-from abc import ABC, abstractmethod
 from typing import Iterable
-
-from pydantic import UUID4
-
 
 from src.core.domain.review import Review, ReviewBroker
 from src.infrastructure.dto.reviewdto import ReviewDTO
+from src.core.repositories.ireservation import IReservationRepository
+from src.core.repositories.ireview import IReviewRepository
+from src.infrastructure.services.ireview import IReviewService
 
 
-class IReviewService(ABC):
-    """A class representing a review repository."""
+class ReviewService(IReviewService):
+    """A class implementing the review service."""
 
-    @abstractmethod
+    _repository: IReviewRepository
+    _reservation_repository: IReservationRepository
+
+    def __init__(
+            self,
+            repository: IReviewRepository,
+            reservation_repository: IReservationRepository
+    ):
+        """The initializer of the `review service`.
+
+        Args:
+            repository (IReviewRepository): The reference to the repository.
+            reservation_repository (IReservationRepository): The reference to the reservation repository.
+        """
+
+        self._repository = repository
+        self._reservation_repository = reservation_repository
+
     async def get_reviews(self) -> Iterable[ReviewDTO]:
         """The method getting all reviews from the repository.
 
@@ -21,7 +37,8 @@ class IReviewService(ABC):
             Iterable[ReviewDTO]: All reviews.
         """
 
-    @abstractmethod
+        return await self._repository.get_all_reviews()
+
     async def get_review_by_id(self, review_id: int) -> ReviewDTO | None:
         """The method getting review by provided id.
 
@@ -32,7 +49,8 @@ class IReviewService(ABC):
             CarDTO | None: The review details.
         """
 
-    @abstractmethod
+        return await self._repository.get_by_id(review_id)
+
     async def get_review_by_user(self, user_id: str) -> Iterable[ReviewDTO] | None:
         """The method getting reviews by user who added them.
 
@@ -43,7 +61,8 @@ class IReviewService(ABC):
             Iterable[ReviewDTO]: The review collection.
         """
 
-    @abstractmethod
+        return await self._repository.get_review_by_user(user_id)
+
     async def get_review_by_car(self, car_id: int) -> Iterable[ReviewDTO]:
         """The method getting reviews assigned to particular car
 
@@ -54,7 +73,8 @@ class IReviewService(ABC):
             Iterable[ReviewDTO]: The review collection.
         """
 
-    @abstractmethod
+        return await self._repository.get_review_by_car(car_id)
+
     async def add_review(self, data: ReviewBroker) -> Review | None:
         """The method adding new review to the data storage.
 
@@ -65,7 +85,16 @@ class IReviewService(ABC):
             Review | None: Full details of the newly added review.
         """
 
-    @abstractmethod
+        has_completed_reservation = await self._reservation_repository.has_completed(
+            user_id=data.user_id,
+            car_id=data.car_id
+        )
+
+        if not has_completed_reservation:
+            raise ValueError("No completed reservation for this car")
+
+        return await self._repository.add_review(data=data)
+
     async def update_review(
         self,
         review_id: int,
@@ -81,7 +110,11 @@ class IReviewService(ABC):
             Airport | None: The updated review details.
         """
 
-    @abstractmethod
+        return await self._repository.update_review(
+            review_id=review_id,
+            data=data
+        )
+
     async def delete_review(self, review_id: int) -> bool:
         """The method updating removing review from the data storage.
 
@@ -91,3 +124,5 @@ class IReviewService(ABC):
         Returns:
             bool: Success of the operation.
         """
+
+        return await self._repository.delete_review(review_id)

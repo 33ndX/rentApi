@@ -8,17 +8,14 @@ from datetime import datetime
 class ReviewIn(BaseModel):
     """Model representing review's attributes."""
     car_id: int
-    reservation_id: int
     body: str
     rating: int
 
     @field_validator("rating")
-    @classmethod
-    def validate_rating(cls, rating: int) -> int:
-        """Validate rating between 1 and 5"""
-        if rating not in range(1, 6):
+    def validate_rating(cls, v: int) -> int:
+        if v < 1 or v > 5:
             raise ValueError("Rating must be between 1 and 5")
-        return rating
+        return v
 
 
 class ReviewBroker(ReviewIn):

@@ -1,28 +1,36 @@
 """A module containing DTO models for output reservations."""
 
-from asyncpg import Record  # type: ignore
-from pydantic import ConfigDict
 from datetime import datetime
+from typing import Optional
+from asyncpg import Record  # type: ignore
+from pydantic import BaseModel, ConfigDict, UUID4, field_serializer
+from src.infrastructure.utils.serializers import serialize_datetime
+
+
 from src.core.domain.reservation import ReservationStatus
-from src.infrastructure.dto.cardto import CarDTO
-from src.infrastructure.dto.userdto import UserDTO
 
 
-class ReservationDTO:
+class ReservationDTO(BaseModel):
     """A model representing DTO for reservation data."""
     id: int
-    car: CarDTO
+    user_id: UUID4
+    car_id: int
     reservation_start: datetime
     reservation_end: datetime
-    payment: PaymentDTO
     status: ReservationStatus
-    user: UserDTO
+    total_price: float
+    payment_id: Optional[int] = None
+    created_at: Optional[datetime] = None
 
     model_config = ConfigDict(
         from_attributes=True,
         extra="ignore",
         arbitrary_types_allowed=True
     )
+
+    @field_serializer("reservation_start", "reservation_end", "created_at")
+    def serialize_dates(self, dt: datetime, _info):
+        return serialize_datetime(dt)
 
     @classmethod
     def from_record(cls, record: Record) -> "ReservationDTO":
@@ -32,16 +40,18 @@ class ReservationDTO:
             record (Record): The DB record.
 
         Returns:
-            CarDTO: The final DTO instance.
+            ReservationDTO: The final DTO instance.
         """
         record_dict = dict(record)
 
         return cls(
-            id=record_dict.get("id"),
-            car=CarDTO(),
-            reservation_start=record_dict.get("reservation_start"),
-            reservation_end=record_dict.get("reservation_end"),
-            payment=PaymentDTO(),
-            status=record_dict.get("status")
-
+            id=record_dict.get("id"),  # type: ignore
+            user_id=record_dict.get("user_id"),  # type: ignore
+            car_id=record_dict.get("car_id"),  # type: ignore
+            reservation_start=record_dict.get("reservation_start"),  # type: ignore
+            reservation_end=record_dict.get("reservation_end"),  # type: ignore
+            status=record_dict.get("reservation_status") or ReservationStatus.PENDING,
+            total_price=record_dict.get("total_price"),  # type: ignore
+            payment_id=record_dict.get("payment_id"),
+            created_at=record_dict.get("created_at"),
         )

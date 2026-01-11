@@ -2,6 +2,8 @@ services:
   app:
     build:
       context: rentapi/
+    env_file:
+    - ./rentapi/.env
     ports:
       - "8000:8000"
     volumes:
@@ -12,7 +14,6 @@ services:
       - DB_NAME=app
       - DB_USER=postgres
       - DB_PASSWORD=pass
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_placeholder}
     depends_on:
       - db
     networks:

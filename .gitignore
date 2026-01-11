@@ -4,3 +4,5 @@ functionalities.txt
 .VSCodeCounter
 __pycache__/
 *.pyc
+.idea
+.env

@@ -6,7 +6,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class BaseConfig(BaseSettings):
     """A class containing base settings configuration."""
-    model_config = SettingsConfigDict(extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore"
+    )
 
 
 class AppConfig(BaseConfig):
@@ -15,6 +20,7 @@ class AppConfig(BaseConfig):
     DB_NAME: Optional[str] = None
     DB_USER: Optional[str] = None
     DB_PASSWORD: Optional[str] = None
+    STRIPE_SECRET_KEY: Optional[str] = None
 
 
 config = AppConfig()

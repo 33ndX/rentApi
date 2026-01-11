@@ -2,17 +2,17 @@
 
 from enum import Enum
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator, UUID4
-from typing import Self, Optional
-from datetime import datetime
+from typing import Optional
+from datetime import datetime, timezone
 
 
 class ReservationStatus(str, Enum):
     """Status of the reservation."""
-    PENDING = "Pending Payment"
-    CONFIRMED = "Confirmed"
-    IN_PROGRESS = "In Progress"
-    COMPLETED = "Completed"
-    CANCELLED = "Cancelled"
+    PENDING = "PENDING_PAYMENT"
+    CONFIRMED = "CONFIRMED"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
 
 
 class ReservationIn(BaseModel):
@@ -22,14 +22,14 @@ class ReservationIn(BaseModel):
     reservation_end: datetime
 
     @field_validator("reservation_start", "reservation_end")
-    @classmethod
     def validate_reservation_date(cls, date: datetime) -> datetime:
-        if date < datetime.now():
+        now = datetime.now(timezone.utc) if date.tzinfo else datetime.now()
+        if date < now:
             raise ValueError("reservation date cannot be in the past")
         return date
 
     @model_validator(mode="after")
-    def validate_reservation_period(self) -> Self:
+    def validate_reservation_period(self):
         if self.reservation_end <= self.reservation_start:
             raise ValueError('reservation_end must be after reservation_start')
         return self

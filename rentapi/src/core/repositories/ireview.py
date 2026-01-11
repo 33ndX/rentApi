@@ -4,16 +4,14 @@
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
 
-from pydantic import UUID5
-
-from src.core.domain.review import ReviewIn
+from src.core.domain.review import ReviewBroker
 
 
 class IReviewRepository(ABC):
     """An abstract class representing protocol of review repository."""
 
     @abstractmethod
-    async def get_reviews(self, review_id: int) -> Iterable[Any]:
+    async def get_all_reviews(self) -> Iterable[Any]:
         """The abstract getting all reviews from the data storage.
 
         Returns:
@@ -21,7 +19,18 @@ class IReviewRepository(ABC):
         """
 
     @abstractmethod
-    async def get_review_by_car(self, car_id: int) -> Iterable[Any] | None:
+    async def get_by_id(self, review_id: int) -> Any | None:
+        """The abstract getting review provided by id.
+
+        Args:
+            review_id (int): The id of the review.
+
+        Returns:
+            Any | None: The review details.
+        """
+
+    @abstractmethod
+    async def get_review_by_car(self, car_id: int) -> Iterable[Any]:
         """The abstract getting reviews assigned to particular car.
 
         Args:
@@ -32,7 +41,7 @@ class IReviewRepository(ABC):
         """
 
     @abstractmethod
-    async def get_review_by_user(self, user_id: UUID5) -> Iterable[Any] | None:
+    async def get_review_by_user(self, user_id: str) -> Iterable[Any]:
         """The abstract getting reviews assigned to particular user.
 
         Args:
@@ -43,27 +52,27 @@ class IReviewRepository(ABC):
         """
 
     @abstractmethod
-    async def add_review(self, data: ReviewIn) -> None:
+    async def add_review(self, data: ReviewBroker) -> Any | None:
         """The abstract adding new review to the data storage.
 
         Args:
-            data (ReviewIn): The details of the new review.
+            data (ReviewBroker): The details of the new review.
 
         Returns:
             Any | None: The newly added review.
         """
 
     @abstractmethod
-    async def update_car(
+    async def update_review(
             self,
             review_id: int,
-            data: ReviewIn
+            data: ReviewBroker
     ) -> Any | None:
-        """The abstract updating airport data in the data storage.
+        """The abstract updating review data in the data storage.
 
         Args:
             review_id (int): The id of the car
-            data (ReviewIn): The details of the update review.
+            data (ReviewBroker): The details of the update review.
 
         Returns:
             Any | None: The updated review details.

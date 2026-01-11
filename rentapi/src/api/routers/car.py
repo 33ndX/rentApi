@@ -3,15 +3,15 @@
 from typing import Iterable
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
-from starlette import status
 
-from src.infrastructure.utils import consts
+
 from src.container import Container
 from src.core.domain.car import Car, CarIn
 from src.infrastructure.dto.cardto import CarDTO
 from src.infrastructure.services.icar import ICarService
 
 router = APIRouter()
+
 
 @router.post("/create", response_model=Car, status_code=201)
 @inject
@@ -33,7 +33,8 @@ async def create_car(
 
     return new_car.model_dump() if new_car else {}
 
-@router.get("/all", response_model=Iterable[Car], status_code=200)
+
+@router.get("/all", response_model=Iterable[CarDTO], status_code=200)
 @inject
 async def get_all_cars(
         service: ICarService = Depends(Provide[Container.car_service]),
@@ -51,7 +52,8 @@ async def get_all_cars(
 
     return cars
 
-@router.get("/{car_id}", response_model=Car, status_code=200)
+
+@router.get("/{car_id}", response_model=CarDTO, status_code=200)
 @inject
 async def get_car_by_id(
         car_id: int,
@@ -74,6 +76,7 @@ async def get_car_by_id(
         return car.model_dump()
 
     raise HTTPException(status_code=404, detail="car not found")
+
 
 @router.put("/{car_id}", response_model=Car, status_code=201)
 @inject
@@ -106,6 +109,7 @@ async def update_car(
 
     raise HTTPException(status_code=404, detail="car not found")
 
+
 @router.delete("/{car_id}", status_code=204)
 @inject
 async def delete_car(
@@ -130,4 +134,3 @@ async def delete_car(
         return
 
     raise HTTPException(status_code=404, detail="car not found")
-
