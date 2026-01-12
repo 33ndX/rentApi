@@ -86,10 +86,22 @@ class PaymentRepository(IPaymentRepository):
             Iterable[Any]: The collection of the payments.
         """
 
-        query = payment_table \
-            .select() \
-            .where(payment_table.c.user_id == user_id) \
+        query = (
+            select(payment_table, reservation_table, user_table)
+            .select_from(
+                payment_table
+                .join(
+                    reservation_table,
+                    payment_table.c.reservation_id == reservation_table.c.id
+                )
+                .join(
+                    user_table,
+                    reservation_table.c.user_id == user_table.c.id
+                )
+            )
+            .where(reservation_table.c.user_id == user_id)
             .order_by(payment_table.c.id.asc())
+        )
 
         payments = await database.fetch_all(query)
 

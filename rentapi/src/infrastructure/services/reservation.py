@@ -213,11 +213,12 @@ class ReservationService(IReservationService):
         reservation = await self._repository.get_by_id(reservation_id)
 
         if reservation.status in [
+            ReservationStatus.CONFIRMED,
             ReservationStatus.IN_PROGRESS,
             ReservationStatus.COMPLETED,
             ReservationStatus.CANCELLED
         ]:
-            raise ValueError("Cannot cancel in-progress, completed or already cancelled reservations")
+            raise ValueError("Cannot cancel confirmed, in-progress, completed or already cancelled reservations")
 
         return await self._repository.update_reservation_status(
             reservation_id=reservation_id,

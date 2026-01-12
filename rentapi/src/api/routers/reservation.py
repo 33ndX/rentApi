@@ -79,42 +79,16 @@ async def get_all_reservations(
 
 
 @router.get(
-        "/{reservation_id}",
-        response_model=ReservationDTO,
-        status_code=200,
+    "/my",
+    response_model=Iterable[ReservationDTO],
+    status_code=200,
 )
 @inject
-async def get_reservation_by_id(
-    reservation_id: int,
-    service: IReservationService = Depends(Provide[Container.reservation_service]),
-) -> dict | None:
-    """An endpoint for getting reservation by id.
-
-    Args:
-        reservation_id (int): The id of the reservation.
-        service (IReservationService, optional): The injected service dependency.
-
-    Returns:
-        dict | None: The reservation details.
-    """
-
-    if reservation := await service.get_by_id(reservation_id):
-        return reservation.model_dump()
-
-    raise HTTPException(status_code=404, detail="Reservation not found")
-
-
-@router.get(
-        "/user/{user_id}",
-        response_model=Iterable[ReservationDTO],
-        status_code=200,
-)
-@inject
-async def get_reservations_by_user(
+async def get_my_reservations(
     service: IReservationService = Depends(Provide[Container.reservation_service]),
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
 ) -> Iterable:
-    """An endpoint for getting user's reservations.
+    """An endpoint for getting the current user's reservations.
 
     Args:
         service (IReservationService, optional): The injected service dependency.
@@ -138,6 +112,32 @@ async def get_reservations_by_user(
     reservations = await service.get_by_user(user_uuid)
 
     return reservations
+
+
+@router.get(
+        "/{reservation_id}",
+        response_model=ReservationDTO,
+        status_code=200,
+)
+@inject
+async def get_reservation_by_id(
+    reservation_id: int,
+    service: IReservationService = Depends(Provide[Container.reservation_service]),
+) -> dict | None:
+    """An endpoint for getting reservation by id.
+
+    Args:
+        reservation_id (int): The id of the reservation.
+        service (IReservationService, optional): The injected service dependency.
+
+    Returns:
+        dict | None: The reservation details.
+    """
+
+    if reservation := await service.get_by_id(reservation_id):
+        return reservation.model_dump()
+
+    raise HTTPException(status_code=404, detail="Reservation not found")
 
 
 @router.put(
@@ -227,7 +227,7 @@ async def start_reservation(
             started_reservation = await service.start_reservation(reservation_id)
             return started_reservation.model_dump() if started_reservation else {}
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=404, detail=str(e))
 
     raise HTTPException(status_code=404, detail="Reservation not found")
 
@@ -273,6 +273,6 @@ async def end_reservation(
             completed_reservation = await service.complete_reservation(reservation_id)
             return completed_reservation.model_dump() if completed_reservation else {}
         except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=404, detail=str(e))
 
     raise HTTPException(status_code=404, detail="Reservation not found")

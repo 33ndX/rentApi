@@ -110,6 +110,14 @@ class ReviewService(IReviewService):
             Airport | None: The updated review details.
         """
 
+        has_completed_reservation = await self._reservation_repository.has_completed(
+            user_id=data.user_id,
+            car_id=data.car_id
+        )
+
+        if not has_completed_reservation:
+            raise ValueError("No completed reservation for this car")
+
         return await self._repository.update_review(
             review_id=review_id,
             data=data

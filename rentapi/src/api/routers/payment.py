@@ -1,5 +1,7 @@
 """A module containing payment endpoints."""
 
+from typing import Iterable
+
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -45,10 +47,48 @@ async def pay_for_reservation(
         raise HTTPException(status_code=403, detail="Unauthorized")
 
     try:
-        payment = await service.process_payment(reservation_id=reservation_id)
-        if not payment:
-            raise HTTPException(status_code=500, detail="Payment processing failed without error message")
-        return payment.model_dump()
+        payment = await service.process_payment(
+            reservation_id=reservation_id,
+            user_id=user_uuid,
+        )
+
+        return payment.model_dump() if payment else {}
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get(
+    "/my",
+    response_model=Iterable[PaymentDTO],
+    status_code=200
+)
+@inject
+async def get_my_payments(
+    service: IPaymentService = Depends(Provide[Container.payment_service]),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> Iterable:
+    """An endpoint for getting the current user's payments.
+
+    Args:
+        service (IPaymentService, optional): The injected service dependency.
+        credentials (HTTPAuthorizationCredentials, optional): The credentials.
+
+    Returns:
+        Iterable: The payment details collection.
+    """
+
+    token = credentials.credentials
+    token_payload = jwt.decode(
+        token,
+        key=consts.SECRET_KEY,
+        algorithms=[consts.ALGORITHM],
+    )
+    user_uuid = token_payload.get("sub")
+
+    if not user_uuid:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    payments = await service.get_by_user(user_uuid)
+
+    return payments

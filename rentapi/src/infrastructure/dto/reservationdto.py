@@ -50,7 +50,7 @@ class ReservationDTO(BaseModel):
             car_id=record_dict.get("car_id"),  # type: ignore
             reservation_start=record_dict.get("reservation_start"),  # type: ignore
             reservation_end=record_dict.get("reservation_end"),  # type: ignore
-            status=record_dict.get("reservation_status") or ReservationStatus.PENDING,
+            status=record_dict.get("reservation_status") or ReservationStatus.PENDING,  # type: ignore
             total_price=record_dict.get("total_price"),  # type: ignore
             payment_id=record_dict.get("payment_id"),
             created_at=record_dict.get("created_at"),

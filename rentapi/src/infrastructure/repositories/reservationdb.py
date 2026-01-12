@@ -7,7 +7,7 @@ from sqlalchemy import select, and_, or_
 from datetime import datetime
 
 from src.core.repositories.ireservation import IReservationRepository
-from src.core.domain.reservation import Reservation, ReservationBroker
+from src.core.domain.reservation import Reservation, ReservationBroker, ReservationStatus
 from src.db import (
     reservation_table,
     user_table,
@@ -98,9 +98,7 @@ class ReservationRepository(IReservationRepository):
 
         return [ReservationDTO.from_record(reservation) for reservation in reservations]
 
-    async def get_by_user(self,
-                          user_id: str
-                          ) -> Iterable[Any]:
+    async def get_by_user(self, user_id: str) -> Iterable[Any]:
         """The method getting all provided user's reservation from the data storage.
 
         Args:
@@ -141,7 +139,10 @@ class ReservationRepository(IReservationRepository):
             .where(
                 and_(
                     reservation_table.c.car_id == car_id,
-                    reservation_table.c.reservation_status != "CANCELLED",
+                    or_(
+                        reservation_table.c.reservation_status != "CANCELLED",
+                        reservation_table.c.reservation_status.is_(None)
+                    ),
                     or_(
                         and_(
                             reservation_table.c.reservation_start >= start_date,
@@ -217,8 +218,11 @@ class ReservationRepository(IReservationRepository):
             await database.execute(query)
 
             reservation = await self._get_by_id(reservation_id)
-
-            return Reservation(**dict(reservation)) if reservation else None
+            if reservation:
+                record_dict = dict(reservation)
+                record_dict["status"] = record_dict.pop("reservation_status", ReservationStatus.PENDING)
+                return Reservation(**record_dict)
+            return None
 
         return None
 

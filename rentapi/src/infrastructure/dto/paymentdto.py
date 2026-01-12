@@ -1,7 +1,7 @@
 """Module containing payment DTO."""
 
-from typing import Any
 from datetime import datetime
+from asyncpg import Record  # type: ignore
 from src.core.domain.payment import PaymentStatus
 from pydantic import BaseModel, ConfigDict
 
@@ -18,7 +18,7 @@ class PaymentDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     @classmethod
-    def from_record(cls, record: Any) -> "PaymentDTO":
+    def from_record(cls, record: Record) -> "PaymentDTO":
         """A method converting record to DTO.
 
         Args:
@@ -27,12 +27,13 @@ class PaymentDTO(BaseModel):
         Returns:
             PaymentDTO: The DTO object.
         """
+        record_dict = dict(record)
 
         return cls(
-            id=record["id"],
-            reservation_id=record["reservation_id"],
-            status=record["status"] or PaymentStatus.PENDING,
-            amount=record["amount"],
-            created_at=record["created_at"],
-            updated_at=record["updated_at"],
+            id=record_dict.get("id"),  # type: ignore
+            reservation_id=record_dict.get("reservation_id"),  # type: ignore
+            status=record_dict.get("status") or PaymentStatus.PENDING,  # type: ignore
+            amount=record_dict.get("amount"),  # type: ignore
+            created_at=record_dict.get("created_at"),
+            updated_at=record_dict.get("updated_at"),
         )

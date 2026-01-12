@@ -1,7 +1,7 @@
 """Modul containing reservation-related domain models."""
 
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator, UUID4
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator, UUID4, Field
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -18,8 +18,14 @@ class ReservationStatus(str, Enum):
 class ReservationIn(BaseModel):
     """Model representing reservation's attributes."""
     car_id: int
-    reservation_start: datetime
-    reservation_end: datetime
+    reservation_start: datetime = Field(
+        ...,
+        examples=["2026-01-01 12:00:00"]
+    )
+    reservation_end: datetime = Field(
+        ...,
+        examples=["2026-01-02 12:00:00"]
+    )
 
     @field_validator("reservation_start", "reservation_end")
     def validate_reservation_date(cls, date: datetime) -> datetime:

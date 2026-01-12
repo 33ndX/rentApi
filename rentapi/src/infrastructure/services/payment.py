@@ -69,11 +69,12 @@ class PaymentService(IPaymentService):
 
         return await self._repository.get_by_reservation(reservation_id)
 
-    async def process_payment(self, reservation_id: int) -> Payment | None:
+    async def process_payment(self, reservation_id: int, user_id: str) -> Payment | None:
         """The abstract processing payment for a reservation.
 
         Args:
             reservation_id (int): The id of the reservation.
+            user_id (str): The id of the user.
 
         Returns:
             Payment | None: The processed payment details.
@@ -82,12 +83,15 @@ class PaymentService(IPaymentService):
         reservation = await self._reservation_repository.get_by_id(reservation_id)
 
         if not reservation:
-            return None
+            raise ValueError("Reservation not found")
+
+        if str(reservation.user_id) != user_id:
+            raise ValueError("You can only pay for your own reservations")
 
         status = reservation.status
 
         if status != ReservationStatus.PENDING:
-            return None
+            raise ValueError("Reservation already paid or cancelled")
 
         is_paid = await self._repository.get_by_reservation(reservation_id)
         if is_paid and is_paid.status == PaymentStatus.PAID:
@@ -99,7 +103,7 @@ class PaymentService(IPaymentService):
         )
 
         if not intent:
-            return None
+            raise ValueError("Can't creat payment intent")
 
         payment_creation = PaymentIn(
             reservation_id=reservation_id,
@@ -109,7 +113,7 @@ class PaymentService(IPaymentService):
         payment = await self._repository.add_payment(payment_creation)
 
         if not payment:
-            return None
+            raise ValueError("Can't creat payment")
 
         charge_confirmed = await self._gateway.confirm_payment(intent.id)
 

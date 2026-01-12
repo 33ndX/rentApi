@@ -57,7 +57,7 @@ async def create_review(
         return new_review.model_dump() if new_review else {}
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/all", response_model=Iterable[ReviewDTO], status_code=200)
@@ -75,6 +75,42 @@ async def get_all_reviews(
     """
 
     reviews = await service.get_reviews()
+
+    return reviews
+
+
+@router.get(
+    "/my",
+    response_model=Iterable[ReviewDTO],
+    status_code=200,
+)
+@inject
+async def get_my_reviews(
+    service: IReviewService = Depends(Provide[Container.review_service]),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> Iterable:
+    """An endpoint for getting the current user's reviews.
+
+    Args:
+        service (IReviewService, optional): The injected service dependency.
+        credentials (HTTPAuthorizationCredentials, optional): The credentials.
+
+    Returns:
+        Iterable: The review details collection.
+    """
+
+    token = credentials.credentials
+    token_payload = jwt.decode(
+        token,
+        key=consts.SECRET_KEY,
+        algorithms=[consts.ALGORITHM],
+    )
+    user_uuid = token_payload.get("sub")
+
+    if not user_uuid:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+    reviews = await service.get_review_by_user(user_uuid)
 
     return reviews
 
@@ -163,21 +199,24 @@ async def update_review(
 
     if not user_uuid:
         raise HTTPException(status_code=403, detail="Unauthorized")
+    try:
+        if review_data := await service.get_review_by_id(review_id=review_id):
+            if str(review_data.user_id) != user_uuid:
+                raise HTTPException(status_code=403, detail="Unauthorized")
 
-    if review_data := await service.get_review_by_id(review_id=review_id):
-        if str(review_data.user_id) != user_uuid:
-            raise HTTPException(status_code=403, detail="Unauthorized")
+            extended_updated_review = ReviewBroker(
+                user_id=user_uuid,
+                **updated_review.model_dump(),
+            )
+            updated_review_data = await service.update_review(
+                review_id=review_id,
+                data=extended_updated_review,
+            )
+            return updated_review_data.model_dump() if updated_review_data \
+                else {}
 
-        extended_updated_review = ReviewBroker(
-            user_id=user_uuid,
-            **updated_review.model_dump(),
-        )
-        updated_review_data = await service.update_review(
-            review_id=review_id,
-            data=extended_updated_review,
-        )
-        return updated_review_data.model_dump() if updated_review_data \
-            else {}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
     raise HTTPException(status_code=404, detail="Review not found")
 

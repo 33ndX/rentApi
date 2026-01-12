@@ -41,11 +41,12 @@ class IPaymentService(ABC):
         """
 
     @abstractmethod
-    async def process_payment(self, reservation_id: int) -> Payment | None:
+    async def process_payment(self, reservation_id: int, user_id: str) -> Payment | None:
         """The abstract processing payment for a reservation.
 
         Args:
             reservation_id (int): The id of the reservation.
+            user_id (str): The id of the user.
 
         Returns:
             Payment | None: The processed payment details.
