@@ -107,7 +107,7 @@ class ReviewService(IReviewService):
             data (ReviewBroker): The details of the updated review.
 
         Returns:
-            Airport | None: The updated review details.
+            Review | None: The updated review details.
         """
 
         has_completed_reservation = await self._reservation_repository.has_completed(

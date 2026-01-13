@@ -51,7 +51,6 @@ class Reservation(ReservationBroker):
     id: int
     status: ReservationStatus = ReservationStatus.PENDING
     total_price: float
-    payment_id: Optional[int] = None
     created_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True, extra="ignore")

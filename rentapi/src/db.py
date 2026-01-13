@@ -46,11 +46,6 @@ reservation_table = sqlalchemy.Table(
         sqlalchemy.ForeignKey("cars.id"),
         nullable=False,
     ),
-    sqlalchemy.Column(
-        "payment_id",
-        sqlalchemy.ForeignKey("payments.id"),
-        nullable=True,
-    ),
     sqlalchemy.Column("reservation_start", sqlalchemy.DateTime),
     sqlalchemy.Column("reservation_end", sqlalchemy.DateTime),
     sqlalchemy.Column("reservation_status", sqlalchemy.String, default="PENDING_PAYMENT"),
@@ -139,7 +134,7 @@ engine = create_async_engine(
 
 database = databases.Database(
     db_uri,
-    force_rollback=True,
+    force_rollback=False,
 )
 
 

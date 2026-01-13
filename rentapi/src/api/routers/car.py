@@ -89,7 +89,7 @@ async def update_car(
 
     Args:
         car_id (int): The id of the car.
-        updated_car (CarIn): The updated continent details.
+        updated_car (CarIn): The updated car details.
         service (ICarService, optional): The injected service dependency.
 
     Raises:
@@ -119,7 +119,7 @@ async def delete_car(
     """An endpoint for deleting cars.
 
     Args:
-        car_id (int): The id of the continent.
+        car_id (int): The id of the car.
         service (ICarService, optional): The injected service dependency.
 
     Raises:

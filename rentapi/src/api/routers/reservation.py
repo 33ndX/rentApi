@@ -221,7 +221,7 @@ async def start_reservation(
 
     if reservation := await service.get_by_id(reservation_id):
         if str(reservation.user_id) != user_uuid:
-             raise HTTPException(status_code=403, detail="Unauthorized")
+            raise HTTPException(status_code=403, detail="Unauthorized")
 
         try:
             started_reservation = await service.start_reservation(reservation_id)
@@ -267,7 +267,7 @@ async def end_reservation(
 
     if reservation := await service.get_by_id(reservation_id):
         if str(reservation.user_id) != user_uuid:
-             raise HTTPException(status_code=403, detail="Unauthorized")
+            raise HTTPException(status_code=403, detail="Unauthorized")
 
         try:
             completed_reservation = await service.complete_reservation(reservation_id)

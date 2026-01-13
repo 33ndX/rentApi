@@ -19,7 +19,6 @@ class ReservationDTO(BaseModel):
     reservation_end: datetime
     status: ReservationStatus
     total_price: float
-    payment_id: Optional[int] = None
     created_at: Optional[datetime] = None
 
     model_config = ConfigDict(
@@ -52,6 +51,5 @@ class ReservationDTO(BaseModel):
             reservation_end=record_dict.get("reservation_end"),  # type: ignore
             status=record_dict.get("reservation_status") or ReservationStatus.PENDING,  # type: ignore
             total_price=record_dict.get("total_price"),  # type: ignore
-            payment_id=record_dict.get("payment_id"),
             created_at=record_dict.get("created_at"),
         )
