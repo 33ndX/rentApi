@@ -143,7 +143,7 @@ async def get_reservation_by_id(
 @router.put(
         "/cancel/{reservation_id}",
         response_model=ReservationDTO,
-        status_code=200,
+        status_code=201,
 )
 @inject
 async def cancel_reservation(
@@ -189,7 +189,7 @@ async def cancel_reservation(
 @router.put(
         "/start/{reservation_id}",
         response_model=ReservationDTO,
-        status_code=200,
+        status_code=201,
 )
 @inject
 async def start_reservation(
@@ -235,7 +235,7 @@ async def start_reservation(
 @router.put(
         "/end/{reservation_id}",
         response_model=ReservationDTO,
-        status_code=200,
+        status_code=201,
 )
 @inject
 async def end_reservation(
