@@ -1,4 +1,4 @@
-"""Modul containing review-related domain models."""
+"""Module containing review repository abstractions."""
 
 
 from abc import ABC, abstractmethod

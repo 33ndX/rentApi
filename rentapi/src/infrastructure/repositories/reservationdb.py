@@ -218,11 +218,12 @@ class ReservationRepository(IReservationRepository):
             await database.execute(query)
 
             reservation = await self._get_by_id(reservation_id)
+
             if reservation:
                 record_dict = dict(reservation)
                 record_dict["status"] = record_dict.pop("reservation_status", ReservationStatus.PENDING)
+
                 return Reservation(**record_dict)
-            return None
 
         return None
 
